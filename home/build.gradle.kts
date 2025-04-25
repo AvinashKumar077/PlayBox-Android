@@ -1,13 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.dagger.hilt)
 }
 
 android {
-    namespace = "com.martin.core"
+    namespace = "com.martin.home"
     compileSdk = 35
 
     defaultConfig {
@@ -33,9 +30,6 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
@@ -46,29 +40,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.runtime)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    debugImplementation (libs.library)
-    releaseImplementation (libs.library.no.op)
-    implementation (libs.retrofit)
-    implementation (libs.converter.gson)
-    implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
-    implementation(libs.moshi)
-    implementation(libs.moshi.kotlin)
-    // Jetpack Compose
-    implementation(libs.ui)
-    implementation(libs.androidx.foundation)
-    implementation(libs.androidx.runtime.v160)
-    implementation(libs.androidx.material)
-
-
-    // Retrofit + Moshi Converter
-    implementation(libs.converter.moshi)
-
-    // Moshi Codegen (for @JsonClass serialization)
-    ksp(libs.moshi.kotlin.codegen)
-
 }
-

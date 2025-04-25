@@ -16,5 +16,8 @@ class AuthRepository @Inject constructor(
         val (dataMap,avatarPart,coverImagePart) = formData.toMultipartParts(context)
         return apiService.signUp(dataMap,avatarPart,coverImagePart).getResponse()
     }
+    suspend fun logIn(){
+
+    }
 
 }

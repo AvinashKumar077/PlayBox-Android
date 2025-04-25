@@ -2,8 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.ksp)
+    id("base-common-dependencies")
 }
 
 android {
@@ -69,29 +70,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
-    implementation(project(":core"))
     implementation(project(":auth"))
 
-
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.moshi)
-    implementation(libs.moshi.kotlin)
-
-    // Retrofit + Moshi Converter
-    implementation(libs.converter.moshi)
-
-    // Moshi Codegen (for @JsonClass serialization)
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
-}
-kapt {
-    correctErrorTypes = true
 }

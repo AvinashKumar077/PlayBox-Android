@@ -1,5 +1,5 @@
+
 pluginManagement {
-    includeBuild("common-plugins")
     repositories {
         google {
             content {
@@ -18,10 +18,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
 }
-
-rootProject.name = "PlayBox"
-include(":app")
-include(":auth")
-include(":core")
-include(":home")

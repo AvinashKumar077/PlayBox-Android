@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,17 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,26 +37,31 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
+import com.martin.core.utils.extensions.debounceClickable
+import com.martin.core.utils.extensions.noRippleClickable
+import com.martin.core.utils.extensions.toasty
+
 
 @Composable
-fun AuthScreen(){
-    AuthScreenContent()
-}
-
-@Composable
-fun AuthScreenContent() {
+fun SignupScreen(onSignupSuccess: () -> Unit, onBackToLogin: () -> Boolean) {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val offsetY = with(LocalDensity.current) { (screenWidthDp * 9f / 16f).toPx() * 0.8f }
 
     var avatarUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var coverUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+
+    val context = LocalContext.current
 
     var fullName by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
@@ -74,8 +77,6 @@ fun AuthScreenContent() {
                 .aspectRatio(16f / 9f),
             onImageSelected = { coverUri = it }
         )
-
-        // Main content overlaid
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -84,24 +85,49 @@ fun AuthScreenContent() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.height(60.dp)) // Just below avatar
+
+            Spacer(modifier = Modifier.height(60.dp))
 
             AuthTextField(value = fullName, onValueChange = { fullName = it }, label = "Full Name")
             AuthTextField(value = email, onValueChange = { email = it }, label = "Email")
             AuthTextField(value = username, onValueChange = { username = it }, label = "Username")
-            AuthTextField(value = password, onValueChange = { password = it }, label = "Password", isPassword = true)
+            AuthTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                isPassword = true
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { /* TODO: Trigger sign up */ },
+                onClick = { context.toasty("Sign Up Clicked") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xff00b4d8),
+                    contentColor = Color.White
+                )
             ) {
                 Text("Sign Up")
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = Color.Gray)) {
+                        append("Already have an account?")
+                    }
+                    withStyle(style = SpanStyle(color = Color(0xff00b4d8))) {
+                        append(" LogIn")
+                    }
+                },
+                modifier = Modifier.noRippleClickable(onClick = {
+                    onBackToLogin()
+                    context.toasty("LogIn Clicked")
+                })
+            )
         }
 
         // Avatar floating above
@@ -116,6 +142,32 @@ fun AuthScreenContent() {
         )
     }
 }
+
+@Composable
+fun LoginScreen(onLoginSuccess: () -> Unit, onSignupClick: () -> Unit) {
+
+    var password by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        AuthTextField(value = email, onValueChange = { email = it }, label = "Email")
+        AuthTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = "Password",
+            isPassword = true
+        )
+        Button(
+            onClick = { onSignupClick() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+        ) {
+            Text("Sign Up")
+        }
+    }
+}
+
+
 @Composable
 fun AuthTextField(
     value: String,
@@ -134,20 +186,16 @@ fun AuthTextField(
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xfff29a35),
-            unfocusedBorderColor = Color(0xfff29a35),
+            focusedBorderColor = Color(0xff00b4d8),
+            unfocusedBorderColor = Color(0xff90e0ef),
             focusedTextColor = Color.Black,
             unfocusedTextColor = Color.Gray,
-            focusedLabelColor = Color(0xfff29a35),
-            unfocusedLabelColor = Color(0xfff29a35),
+            focusedLabelColor = Color(0xff00b4d8),
+            unfocusedLabelColor = Color.Gray,
             cursorColor = Color.Black
         )
     )
 }
-
-
-
-
 
 
 @Composable
@@ -163,8 +211,13 @@ fun CoverImagePickerBox(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-            .clickable { launcher.launch("image/*") }
-            .background(Color.Blue),
+            .debounceClickable(
+                onClick = {
+                    launcher.launch("image/*")
+                },
+                withoutRipple = false
+            )
+            .background(Color(0xff90e0ef)),
         contentAlignment = Alignment.Center
     ) {
         if (imageUri != null) {
@@ -174,6 +227,16 @@ fun CoverImagePickerBox(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Placeholder Avatar",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(40.dp)
+                )
+                Text("Click Here to Select Cover Image", color = Color.Gray)
+            }
         }
     }
 }
@@ -194,7 +257,12 @@ fun AvatarImagePickerBox(
             .border(4.dp, Color.White, CircleShape)
             .padding(4.dp)
             .clip(CircleShape)
-            .clickable { launcher.launch("image/*") }
+            .debounceClickable(
+                onClick = {
+                    launcher.launch("image/*")
+                },
+                withoutRipple = false
+            )
             .background(Color.LightGray),
         contentAlignment = Alignment.Center
     ) {
@@ -206,25 +274,22 @@ fun AvatarImagePickerBox(
                 contentScale = ContentScale.Crop
             )
         } else {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Placeholder Avatar",
-                tint = Color.DarkGray,
-                modifier = Modifier.size(48.dp)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Placeholder Avatar",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(30.dp)
+                )
+                Text(text = "Select Avatar", color = Color.Gray)
+            }
         }
     }
 }
 
 
-
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
-fun AuthScreenPreview(){
-    AuthScreenContent()
+fun AuthScreenPreview() {
+
 }
