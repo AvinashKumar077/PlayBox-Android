@@ -1,5 +1,7 @@
 package com.martin.core.network
 
+import com.martin.core.db.LoginRequestModel
+import com.martin.core.db.LoginResponse
 import com.martin.core.db.ResponseApp
 import com.martin.core.db.SignUpRequest
 import com.martin.core.db.SignUpResponse
@@ -20,5 +22,10 @@ interface ApiService {
         @Part avatar: MultipartBody.Part?,
         @Part coverImage: MultipartBody.Part?
     ):ResponseApp<SignUpResponse>
+
+    @POST("/api/v1/users/login")
+    suspend fun login(
+        @Body loginRequest: LoginRequestModel
+    ): ResponseApp<LoginResponse>
 
 }

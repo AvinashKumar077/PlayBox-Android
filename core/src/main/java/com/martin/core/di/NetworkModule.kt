@@ -81,7 +81,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit {
-        val baseUrl = "http://localhost:8000"
+        val baseUrl = "https://playbox-backend-production.up.railway.app"
 
         return Retrofit.Builder()
             .baseUrl(baseUrl)

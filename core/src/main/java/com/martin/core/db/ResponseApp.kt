@@ -30,6 +30,10 @@ fun <T> ResponseApp<T>.getResponse(): Pair<String?, T?> {
             SessionManager.currentAuthState.postValue(AuthStates.UNAUTHORISED)
             Pair(null, null)
         }
+        StatusCode.CONFLICT->{
+            Pair(message?:"User Already Exists", null)
+        }
+
 
         else -> Pair(message, null)
     }

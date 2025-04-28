@@ -42,7 +42,7 @@ fun SignUpRequest.toMultipartParts(context: Context): Triple<Map<String, Request
         "fullName" to fullName.toPart(),
         "email" to email.toPart(),
         "password" to password.toPart(),
-        "userName" to userName.toPart()
+        "username" to username.toPart()
     )
     val avatarPart = avatarUri?.toMultipart("avatar", context)
     val coverPart = coverImageUri?.toMultipart("coverImage", context)

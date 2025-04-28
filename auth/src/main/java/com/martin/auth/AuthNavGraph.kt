@@ -5,27 +5,27 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.martin.core.navigation.ScreenRoutes
 
 const val AUTH_GRAPH_ROUTE = "auth_graph"
 
 fun NavGraphBuilder.authNavGraph(navController: NavController) {
     navigation(
         route = AUTH_GRAPH_ROUTE,
-        startDestination = "login"
+        startDestination = ScreenRoutes.Login.route
     ) {
-        composable("login") {
+        composable(ScreenRoutes.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
-                    // Update session state
                     com.martin.core.SessionManager.currentAuthState.value = com.martin.core.AuthStates.AUTHORISED
                 },
                 onSignupClick = {
-                    navController.navigate("signup")
+                    navController.navigate(ScreenRoutes.Signup.route)
                 }
             )
         }
 
-        composable("signup") {
+        composable(ScreenRoutes.Signup.route) {
             SignupScreen(
                 onSignupSuccess = {
                     com.martin.core.SessionManager.currentAuthState.value = com.martin.core.AuthStates.AUTHORISED

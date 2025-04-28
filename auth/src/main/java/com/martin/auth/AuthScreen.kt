@@ -47,14 +47,22 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.martin.core.db.LoginRequestModel
+import com.martin.core.db.SignUpRequest
 import com.martin.core.utils.extensions.debounceClickable
 import com.martin.core.utils.extensions.noRippleClickable
 import com.martin.core.utils.extensions.toasty
 
 
 @Composable
-fun SignupScreen(onSignupSuccess: () -> Unit, onBackToLogin: () -> Boolean) {
+fun SignupScreen(
+    onSignupSuccess: () -> Unit,
+    onBackToLogin: () -> Boolean,
+    viewModel: AuthViewModel = hiltViewModel()
+)
+{
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val offsetY = with(LocalDensity.current) { (screenWidthDp * 9f / 16f).toPx() * 0.8f }
 
@@ -101,7 +109,17 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onBackToLogin: () -> Boolean) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { context.toasty("Sign Up Clicked") },
+                onClick = {
+                    val signUpRequest = SignUpRequest(
+                        fullName = fullName,
+                        email = email,
+                        password = password,
+                        username = username,
+                        avatarUri = avatarUri,
+                        coverImageUri = coverUri
+                    )
+                    viewModel.signUp(signUpRequest)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -144,11 +162,14 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onBackToLogin: () -> Boolean) {
 }
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit, onSignupClick: () -> Unit) {
-
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onSignupClick: () -> Unit,
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
     var password by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Column (modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         AuthTextField(value = email, onValueChange = { email = it }, label = "Email")
         AuthTextField(
             value = password,
@@ -156,6 +177,17 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onSignupClick: () -> Unit) {
             label = "Password",
             isPassword = true
         )
+        Button(
+            onClick = {
+                val loginRequest = LoginRequestModel(email = email, password = password)
+                authViewModel.login(loginRequest)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+        ) {
+            Text("Login")
+        }
         Button(
             onClick = { onSignupClick() },
             modifier = Modifier
