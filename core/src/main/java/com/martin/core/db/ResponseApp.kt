@@ -1,5 +1,6 @@
 package com.martin.core.db
 
+import android.util.Log
 import com.martin.core.AuthStates
 import com.martin.core.SessionManager
 import com.martin.core.constants.StatusCode
@@ -30,14 +31,17 @@ fun <T> ResponseApp<T>.getResponse(): Pair<String?, T?> {
             SessionManager.currentAuthState.postValue(AuthStates.UNAUTHORISED)
             Pair(null, null)
         }
-        StatusCode.CONFLICT->{
-            Pair(message?:"User Already Exists", null)
+
+        StatusCode.CONFLICT -> {
+            Pair(message ?: "User Already Exists", null)
         }
 
-
-        else -> Pair(message, null)
+        else -> {
+            Pair(message, null)
+        }
     }
 }
+
 
 fun <T> ResponseApp<T>.getResponse(
     onSuccess: (T?) -> Unit,

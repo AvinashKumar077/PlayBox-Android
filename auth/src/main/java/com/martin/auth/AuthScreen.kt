@@ -58,11 +58,9 @@ import com.martin.core.utils.extensions.toasty
 
 @Composable
 fun SignupScreen(
-    onSignupSuccess: () -> Unit,
     onBackToLogin: () -> Boolean,
     viewModel: AuthViewModel = hiltViewModel()
-)
-{
+) {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val offsetY = with(LocalDensity.current) { (screenWidthDp * 9f / 16f).toPx() * 0.8f }
 
@@ -163,13 +161,12 @@ fun SignupScreen(
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
     onSignupClick: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     var password by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    Column (modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         AuthTextField(value = email, onValueChange = { email = it }, label = "Email")
         AuthTextField(
             value = password,

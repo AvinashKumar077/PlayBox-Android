@@ -8,21 +8,33 @@ import androidx.navigation.compose.rememberNavController
 import com.martin.auth.authNavGraph
 import com.martin.core.AuthStates
 import com.martin.core.SessionManager
+import com.martin.core.helper.getPopSlideFadeOutTransition
+import com.martin.core.helper.getPopSlideFadeTransition
+import com.martin.core.helper.getSlideFadeOutTransition
+import com.martin.core.helper.getSlideFadeTransition
+import com.martin.core.navigation.Graph
+import com.martin.home.homeNavGraph
 
 @Composable
-fun PlayBoxApp(){
-  val navController = rememberNavController()
-  val authState by SessionManager.currentAuthState.observeAsState(AuthStates.DEFAULT)
+fun PlayBoxApp() {
+    val navController = rememberNavController()
+    val authState by SessionManager.currentAuthState.observeAsState(AuthStates.DEFAULT)
 
-  NavHost(
-    navController = navController,
-    startDestination = when (authState) {
-      AuthStates.AUTHORISED -> "home_graph"
-      AuthStates.UNAUTHORISED -> "auth_graph"
-      else -> "auth_graph" // fallback
+    NavHost(
+        navController = navController,
+        startDestination = when (authState) {
+            AuthStates.AUTHORISED -> Graph.HOME
+            AuthStates.UNAUTHORISED -> Graph.AUTH
+            else -> Graph.AUTH // fallback
+        },
+        enterTransition = { getSlideFadeTransition() },
+        exitTransition = { getSlideFadeOutTransition() },
+        popEnterTransition = { getPopSlideFadeTransition() },
+        popExitTransition = { getPopSlideFadeOutTransition() }
+    ) {
+        authNavGraph(navController)
+        homeNavGraph(navController)
     }
-  ) {
-    authNavGraph(navController)
-//    homeNavGraph(navController)
-  }
 }
+
+

@@ -21,7 +21,7 @@ private const val USER_DATA = "user_data"
 interface Prefs {
     val user: User?
     var mAccessToken: String?
-    var mRefreshToken: String
+    var mRefreshToken: String?
     fun getAccessToken(): String?
     fun updateSecurityToken(tokenResponse: TokenResponse? = null)
     fun clear()
@@ -68,7 +68,7 @@ class PrefImpl @Inject constructor(
         }
     }
 
-    override var mRefreshToken: String
+    override var mRefreshToken: String?
         get() = prefs.getString(REFRESH, "") ?: ""
         set(value) = prefs.edit { putString(REFRESH, value) }
 

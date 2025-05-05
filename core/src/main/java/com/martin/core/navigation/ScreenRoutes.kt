@@ -1,6 +1,11 @@
 package com.martin.core.navigation
 
-sealed class ScreenRoutes(val route: String) {
-    data object Login : ScreenRoutes("login")
-    data object Signup : ScreenRoutes("signup")
+sealed class AuthRoutes(val route: String) {
+    data object Login : AuthRoutes("login")
+    data object Signup : AuthRoutes("signup")
+}
+
+sealed class HomeRoutes(val route: String) {
+    data object Home : HomeRoutes("home")
+    data object Profile : HomeRoutes("profile")
 }

@@ -20,7 +20,7 @@ class PrefUtilsImpl @Inject constructor(
     private var user: User? = null
 
     override fun getUserDetails(): User? {
-        if (user?.userId.isNullOrZero()) {
+        if (user?.userId.isNullOrEmpty()) {
             this.user = prefs.user
         }
         return user

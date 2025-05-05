@@ -11,6 +11,7 @@ import com.martin.core.db.getResponse
 import com.martin.core.network.ApiService
 import com.martin.core.utils.extensions.toMultipartParts
 import jakarta.inject.Inject
+import kotlin.math.log
 
 class AuthRepository @Inject constructor(
     private val apiService: ApiService,
@@ -18,15 +19,11 @@ class AuthRepository @Inject constructor(
     suspend fun signUp(formData: SignUpRequest, context: Context): Pair<String?, SignUpResponse?> {
         return try {
             val (dataMap, avatarPart, coverImagePart) = formData.toMultipartParts(context)
-            Log.d("SignUp Request", "data: $dataMap \navatar: $avatarPart \ncover: $coverImagePart")
-
             val response = apiService.signUp(dataMap, avatarPart, coverImagePart)
-            Log.d("SignUp API Raw Response", response.toString())
 
             response.getResponse()
         } catch (e: Exception) {
-            Log.e("SignUp Repository Error", "Failed to signup", e)
-            throw e // rethrow so ViewModel can handle it too
+            throw e
         }
     }
 
