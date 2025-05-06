@@ -13,7 +13,7 @@ import com.martin.core.helper.getPopSlideFadeTransition
 import com.martin.core.helper.getSlideFadeOutTransition
 import com.martin.core.helper.getSlideFadeTransition
 import com.martin.core.navigation.Graph
-import com.martin.home.homeNavGraph
+import com.martin.home.navigation.homeNavGraph
 
 @Composable
 fun PlayBoxApp() {
