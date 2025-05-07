@@ -2,8 +2,11 @@ package com.martin.playbox
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.martin.core.AuthStates
 import com.martin.core.SessionManager
 import com.martin.core.pref.PrefUtils
@@ -18,7 +21,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         val user = prefUtils.getUserDetails()
         if(user?.userId!= null){
             SessionManager.currentAuthState.value = AuthStates.AUTHORISED

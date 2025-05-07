@@ -1,11 +1,10 @@
 package com.martin.core.network
 
-import com.martin.core.db.LoginRequestModel
-import com.martin.core.db.LoginResponse
+import com.martin.core.db.auth.LoginRequestModel
+import com.martin.core.db.auth.LoginResponse
 import com.martin.core.db.ResponseApp
-import com.martin.core.db.SignUpRequest
-import com.martin.core.db.SignUpResponse
-import com.martin.core.db.TokenResponse
+import com.martin.core.db.auth.SignUpResponse
+import com.martin.core.db.auth.TokenResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body

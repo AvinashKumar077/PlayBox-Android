@@ -24,4 +24,4 @@ rootProject.name = "PlayBox"
 include(":app")
 include(":auth")
 include(":core")
-include(":home")
+include(":features")

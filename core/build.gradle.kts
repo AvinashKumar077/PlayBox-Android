@@ -63,6 +63,9 @@ dependencies {
     implementation(libs.androidx.runtime.v160)
     implementation(libs.androidx.material)
 
+    //navigation-compose
+    implementation(libs.androidx.navigation.compose)
+
 
     // Retrofit + Moshi Converter
     implementation(libs.converter.moshi)

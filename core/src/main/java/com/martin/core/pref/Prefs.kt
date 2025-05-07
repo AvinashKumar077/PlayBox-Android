@@ -2,7 +2,7 @@ package com.martin.core.pref
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.martin.core.db.TokenResponse
+import com.martin.core.db.auth.TokenResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit

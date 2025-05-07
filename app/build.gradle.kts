@@ -71,7 +71,7 @@ dependencies {
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     implementation(project(":auth"))
-    implementation(project(":home"))
+    implementation(project(":features"))
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)

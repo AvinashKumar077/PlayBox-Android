@@ -25,7 +25,7 @@
             <option value="$PROJECT_DIR$/auth" />
             <option value="$PROJECT_DIR$/common-plugins" />
             <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/home" />
+            <option value="$PROJECT_DIR$/features" />
           </set>
         </option>
       </GradleProjectSettings>

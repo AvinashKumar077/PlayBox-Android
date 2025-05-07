@@ -49,8 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.martin.core.db.LoginRequestModel
-import com.martin.core.db.SignUpRequest
+import com.martin.core.db.auth.LoginRequestModel
+import com.martin.core.db.auth.SignUpRequest
 import com.martin.core.utils.extensions.debounceClickable
 import com.martin.core.utils.extensions.noRippleClickable
 import com.martin.core.utils.extensions.toasty

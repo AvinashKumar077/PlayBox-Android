@@ -1,14 +1,13 @@
 package com.martin.auth
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.martin.core.AuthStates
 import com.martin.core.SessionManager
-import com.martin.core.db.LoginRequestModel
-import com.martin.core.db.SignUpRequest
-import com.martin.core.db.TokenResponse
+import com.martin.core.db.auth.LoginRequestModel
+import com.martin.core.db.auth.SignUpRequest
+import com.martin.core.db.auth.TokenResponse
 import com.martin.core.pref.PrefUtils
 import com.martin.core.pref.Prefs
 import com.martin.core.repository.AuthRepository
