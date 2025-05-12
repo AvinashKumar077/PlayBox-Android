@@ -5,12 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
@@ -28,17 +29,28 @@ import coil.compose.rememberAsyncImagePainter
 import com.martin.core.db.User
 import com.martin.core.db.home.VideoModel
 import com.martin.core.helper.getTimeAgo
+import com.martin.core.utils.extensions.noRippleClickable
 
 @Composable
-fun VideoCard(video: VideoModel) {
-    Column(modifier = Modifier.fillMaxWidth().background(Color.Black)) {
+fun VideoCard(video: VideoModel, onClick: (VideoModel) -> Unit) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .background(Color.Black)
+        .noRippleClickable(
+            onClick = {
+                onClick(video)
+            }
+        )
+    ) {
         Image(
             painter = rememberAsyncImagePainter(video.thumbnail),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .padding(start = 8.dp, end = 8.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .aspectRatio(16f/9f)
         )
         Row(
             modifier = Modifier
@@ -89,5 +101,8 @@ fun VideoCardPreview() {
         )
     )
 
-    VideoCard(video = dummyVideo)
+    VideoCard(
+        video = dummyVideo,
+        onClick = {}
+    )
 }

@@ -34,27 +34,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.martin.core.R
 import com.martin.core.db.User
 import com.martin.core.db.home.VideoModel
+import com.martin.features.navigation.VideoPlayerEntryImpl
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(innerPadding: PaddingValues) {
-    HomeScreenContentWithPullToRefresh()
+fun HomeScreen(navController: NavController,bottomPadding: PaddingValues) {
+    HomeScreenContentWithPullToRefresh(navController,bottomPadding)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun HomeScreenContentWithPullToRefresh() {
+fun HomeScreenContentWithPullToRefresh(navController: NavController,bottomPadding: PaddingValues) {
     var isRefreshing by remember { mutableStateOf(false) }
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
 
     // Dummy list of videos (same dummy object repeated for now)
     val dummyVideo = VideoModel(
-        videoFile = "https://example.com/video.mp4",
+        videoFile = "https://cdn.mtdv.me/video/rick.mp4",
         thumbnail = "https://i.ytimg.com/vi/5xX5MmmThiU/maxresdefault.jpg",
         title = "Exploring Compose: Full Tutorial",
         description = "Learn Jetpack Compose from scratch in this in-depth tutorial!",
@@ -105,27 +107,37 @@ fun HomeScreenContentWithPullToRefresh() {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black.copy(alpha = 0.4f), // Translucent black
-                    scrolledContainerColor = Color.Black.copy(alpha = 0.6f) // Slightly less transparent when scrolled
+                    containerColor = Color.Black.copy(alpha = 0.8f), // Translucent black
+                    scrolledContainerColor = Color.Black // Slightly less transparent when scrolled
                 ),
                 scrollBehavior = scrollBehavior
             )
         }
     ) { innerPadding ->
         PullToRefreshBox(
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier,
             state = state,
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
         ) {
             LazyColumn(Modifier.fillMaxSize().background(Color.Black)) {
+                item {
+                    Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+                }
                 items(videoList.size) { index ->
-                    VideoCard(video = videoList[index])
+                    val videoPlayerEntry = VideoPlayerEntryImpl()
+                    VideoCard(video = videoList[index], onClick = {
+                        navController.navigate(videoPlayerEntry.route(it.videoFile.toString()))
+                    })
                     if (index < videoList.size - 1) {
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
+                item {
+                    Spacer(modifier = Modifier.height(bottomPadding.calculateBottomPadding()))
+                }
             }
+
         }
     }
 }

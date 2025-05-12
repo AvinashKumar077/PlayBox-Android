@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,7 +19,7 @@ import com.martin.features.upload.UploadScreen
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun BottomNavigationComponent() {
+fun BottomNavigationComponent(parentNavController: NavController) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController = navController) },
@@ -30,7 +31,7 @@ fun BottomNavigationComponent() {
             startDestination = HomeRoutes.Home.route,
             modifier = Modifier
         ) {
-            composable(HomeRoutes.Home.route) { HomeScreen(innerPadding) }
+            composable(HomeRoutes.Home.route) { HomeScreen(navController = parentNavController, bottomPadding = innerPadding) }
             composable(HomeRoutes.Tweet.route) { TweetScreen() }
             composable(HomeRoutes.Upload.route) { UploadScreen() }
             composable(HomeRoutes.Profile.route) { ProfileScreen() }

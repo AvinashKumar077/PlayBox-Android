@@ -35,7 +35,7 @@ fun BottomNavBar(navController: NavHostController) {
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
-        containerColor = Color.Black.copy(alpha = 0.9f)
+        containerColor = Color.Black.copy(alpha = 0.8f)
     ) {
         HomeRoutes.bottomNavItems.forEach { item ->
             val selected = currentDestination?.hierarchy?.any {

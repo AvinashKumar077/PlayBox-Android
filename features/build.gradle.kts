@@ -52,6 +52,12 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
 
+    //exo-player
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.ui.compose)
+
     implementation(libs.ui)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.runtime.v160)
