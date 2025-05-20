@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cast
@@ -34,47 +33,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.martin.core.R
-import com.martin.core.db.User
-import com.martin.core.db.home.VideoModel
+import com.martin.features.home.videoutils.VideoCard
 import com.martin.features.navigation.VideoPlayerEntryImpl
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(navController: NavController,bottomPadding: PaddingValues) {
-    HomeScreenContentWithPullToRefresh(navController,bottomPadding)
+fun HomeScreen(navController: NavController,bottomPadding: PaddingValues,viewModel: HomeViewModel = hiltViewModel()) {
+    HomeScreenContentWithPullToRefresh(navController,bottomPadding,viewModel)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun HomeScreenContentWithPullToRefresh(navController: NavController,bottomPadding: PaddingValues) {
+fun HomeScreenContentWithPullToRefresh(navController: NavController,bottomPadding: PaddingValues,viewModel: HomeViewModel) {
     var isRefreshing by remember { mutableStateOf(false) }
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
-
-    // Dummy list of videos (same dummy object repeated for now)
-    val dummyVideo = VideoModel(
-        videoFile = "https://cdn.mtdv.me/video/rick.mp4",
-        thumbnail = "https://i.ytimg.com/vi/5xX5MmmThiU/maxresdefault.jpg",
-        title = "Exploring Compose: Full Tutorial",
-        description = "Learn Jetpack Compose from scratch in this in-depth tutorial!",
-        duration = 12.5,
-        views = 12345,
-        createdAt = "2025-05-01T10:15:30.000Z",
-        owner = User(
-            userId = "martin_dev",
-            avatar = "https://wallpaperaccess.com/full/861896.jpg"
-        )
-    )
-    var videoList by remember { mutableStateOf(List(5) { dummyVideo }) }
+    val videos by viewModel.videoList.collectAsStateWithLifecycle()
 
     val onRefresh: () -> Unit = {
         isRefreshing = true
         coroutineScope.launch {
+            viewModel.getAllVideos()
             delay(1500)
-            videoList = List(videoList.size + 1) { dummyVideo } // Add one more dummy video
             isRefreshing = false
         }
     }
@@ -124,13 +109,20 @@ fun HomeScreenContentWithPullToRefresh(navController: NavController,bottomPaddin
                 item {
                     Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
                 }
-                items(videoList.size) { index ->
-                    val videoPlayerEntry = VideoPlayerEntryImpl()
-                    VideoCard(video = videoList[index], onClick = {
-                        navController.navigate(videoPlayerEntry.route(it.videoFile.toString()))
-                    })
-                    if (index < videoList.size - 1) {
-                        Spacer(modifier = Modifier.height(12.dp))
+                videos?.let { list ->
+                    items(list.size) { index ->
+                        val videoPlayerEntry = VideoPlayerEntryImpl()
+                        VideoCard(
+                            video = list[index],
+                            onClick = {
+                                navController.navigate(
+                                    videoPlayerEntry.route(list[index].videoFile.toString())
+                                )
+                            }
+                        )
+                        if (index < list.size - 1) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
                 item {

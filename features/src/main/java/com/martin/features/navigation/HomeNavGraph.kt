@@ -7,7 +7,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.martin.core.navigation.Graph
 import com.martin.core.navigation.HomeRoutes
-import com.martin.features.home.VideoPlayerScreen
+import com.martin.features.home.playerscreen.VideoPlayerScreen
 import java.net.URLDecoder
 
 @RequiresApi(Build.VERSION_CODES.S)

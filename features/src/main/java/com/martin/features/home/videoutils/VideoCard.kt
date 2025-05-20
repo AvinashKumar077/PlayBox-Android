@@ -1,4 +1,4 @@
-package com.martin.features.home
+package com.martin.features.home.videoutils
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

@@ -5,9 +5,11 @@ import com.martin.core.db.auth.LoginResponse
 import com.martin.core.db.ResponseApp
 import com.martin.core.db.auth.SignUpResponse
 import com.martin.core.db.auth.TokenResponse
+import com.martin.core.db.home.VideoModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -33,4 +35,7 @@ interface ApiService {
     suspend fun refreshAccessToken(
         @Header("refreshToken") refreshToken: String
     ): TokenResponse
+
+    @GET("api/v1/videos/")
+    suspend fun getAllVideos(): ResponseApp<List<VideoModel>>
 }
