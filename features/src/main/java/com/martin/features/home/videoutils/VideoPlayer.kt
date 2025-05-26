@@ -274,11 +274,10 @@ fun CustomSeekBar(
         if (showTime) {
             Spacer(modifier = Modifier.height(4.dp))
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(formatTime((visualFraction * duration).toLong()), style = MaterialTheme.typography.labelSmall, color = Color.White)
-                Text(formatTime(duration), style = MaterialTheme.typography.labelSmall, color = Color.White)
+                Text("${formatTime((visualFraction * duration).toLong())}/${formatTime(duration)}", style = MaterialTheme.typography.labelSmall, color = Color.White)
             }
         }
         Box(
