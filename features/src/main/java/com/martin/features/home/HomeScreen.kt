@@ -116,7 +116,7 @@ fun HomeScreenContentWithPullToRefresh(navController: NavController,bottomPaddin
                             video = list[index],
                             onClick = {
                                 navController.navigate(
-                                    videoPlayerEntry.route(list[index].videoFile.toString())
+                                    videoPlayerEntry.route(list[index])
                                 )
                             }
                         )

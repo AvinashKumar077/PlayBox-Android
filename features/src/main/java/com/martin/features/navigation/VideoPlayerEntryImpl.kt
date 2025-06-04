@@ -1,14 +1,17 @@
 package com.martin.features.navigation
 
+import com.martin.core.db.home.VideoModel
 import com.martin.core.navigation.HomeRoutes
 import com.martin.core.navigation.VideoPlayerEntry
-import java.net.URLEncoder
+import com.martin.core.utils.MoshiEntityConverter
 
 class VideoPlayerEntryImpl : VideoPlayerEntry {
+
+
     override val baseRoute = HomeRoutes.VideoPlayer.route
 
-    override fun route(videoUrl: String): String {
-        val encoded = URLEncoder.encode(videoUrl, "UTF-8")
-        return "video_player/$encoded"
+    override fun route(video: VideoModel): String {
+        val json = MoshiEntityConverter.toJson(video)
+        return "$baseRoute/$json"
     }
 }

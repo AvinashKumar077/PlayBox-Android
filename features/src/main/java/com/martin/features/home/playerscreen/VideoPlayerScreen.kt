@@ -42,6 +42,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.martin.core.db.home.VideoModel
+import com.martin.core.helper.getTimeAgo
 import com.martin.features.home.videoutils.OneShotActionChip
 import com.martin.features.home.videoutils.ToggleActionChip
 import com.martin.features.home.videoutils.UserReaction
@@ -49,7 +51,7 @@ import com.martin.features.home.videoutils.VideoPlayer
 
 
 @Composable
-fun VideoPlayerScreen(videoUrl: String?) {
+fun VideoPlayerScreen(video: VideoModel) {
     var isSubscribed by remember { mutableStateOf(false) }
     var reaction by remember { mutableStateOf(UserReaction.NONE) }
     val buttonColor by animateColorAsState(
@@ -62,12 +64,12 @@ fun VideoPlayerScreen(videoUrl: String?) {
     )
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        VideoPlayer(videoUrl.orEmpty())
+        VideoPlayer(video.videoFile.toString())
 
         Column(Modifier.weight(1f)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Video Player / yeha video ka title ayega",
+                    text = video.title.toString(),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.White,
                     modifier = Modifier
@@ -76,7 +78,7 @@ fun VideoPlayerScreen(videoUrl: String?) {
                         .padding(top = 12.dp, bottom = 6.dp)
                 )
                 Text(
-                    text = "4.6 crore views • 1 hour ago • ...more",
+                    text = "${video.views} views • ${getTimeAgo(video.createdAt.toString())} • ...more",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     modifier = Modifier
