@@ -6,6 +6,8 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class VideoModel(
+    @Json(name = "_id")
+    val id: String?=null,
     @Json(name = "videoFile")
     val videoFile: String?=null,
     @Json(name = "thumbnail")
@@ -20,6 +22,10 @@ data class VideoModel(
     val views: Int?=null,
     @Json(name = "owner")
     val owner: User?=null,
+    @Json(name = "likeCount")
+    val likeCount: Int?=null,
+    @Json(name = "liked")
+    val liked: Boolean?=null,
     @Json(name = "createdAt")
     val createdAt: String?=null,
     @Json(name = "updatedAt")

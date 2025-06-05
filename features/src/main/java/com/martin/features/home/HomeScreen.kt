@@ -77,7 +77,7 @@ fun HomeScreenContentWithPullToRefresh(navController: NavController,bottomPaddin
                             contentDescription = "YouTube Logo",
                             modifier = Modifier.height(50.dp)
                         )
-                        Text("PlayBox")
+                        Text(text = "PlayBox")
                     }
                 },
                 actions = {

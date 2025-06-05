@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.martin.core.db.User
 import com.martin.core.db.home.VideoModel
-import com.martin.core.helper.getTimeAgo
+import com.martin.core.helper.DateUtils.getTimeAgo
 import com.martin.core.utils.extensions.noRippleClickable
 
 @Composable
@@ -70,7 +70,7 @@ fun VideoCard(video: VideoModel, onClick: (VideoModel) -> Unit) {
             Column {
                 Text(text = video.title.toString(), color = Color.White, maxLines = 2)
                 Text(
-                    text = "${video.owner?.userId} • ${video.views} views • ${getTimeAgo(video.createdAt.toString())}",
+                    text = "${video.owner?.userName} • ${video.views} views • ${getTimeAgo(video.createdAt.toString())}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

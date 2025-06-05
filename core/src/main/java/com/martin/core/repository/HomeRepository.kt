@@ -11,4 +11,7 @@ class HomeRepository @Inject constructor(
     suspend fun getAllVideos(): Pair<String?, List<VideoModel>?>{
         return apiService.getAllVideos().getResponse()
     }
+    suspend fun getVideoById(id: String): Pair<String?, VideoModel?>{
+        return apiService.getVideoById(id).getResponse()
+    }
 }

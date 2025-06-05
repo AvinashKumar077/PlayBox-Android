@@ -15,6 +15,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.PartMap
+import retrofit2.http.Path
 
 interface ApiService {
 
@@ -38,4 +39,7 @@ interface ApiService {
 
     @GET("api/v1/videos/")
     suspend fun getAllVideos(): ResponseApp<List<VideoModel>>
+
+    @GET("api/v1/videos/{id}")
+    suspend fun getVideoById(@Path("id") id: String): ResponseApp<VideoModel>
 }
