@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.ui.compose)
 
-    implementation(libs.ui)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.runtime.v160)
     implementation(libs.androidx.material)

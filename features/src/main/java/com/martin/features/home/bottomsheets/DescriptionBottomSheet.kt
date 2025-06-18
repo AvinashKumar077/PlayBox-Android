@@ -1,6 +1,5 @@
 package com.martin.features.home.bottomsheets
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,20 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,10 +35,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.martin.core.helper.DateUtils.getFormattedDateForDisplay
 import com.martin.core.ui.roboto
+import com.martin.core.ui.sans
 import com.martin.core.utils.extensions.noRippleClickable
 import com.martin.features.home.videoutils.CustomSubscribeButton
 import com.martin.features.home.videoutils.RollingCounter
-import kotlinx.coroutines.launch
 
 @Composable
 fun DescriptionBottomSheetContent(
@@ -72,12 +63,12 @@ fun DescriptionBottomSheetContent(
                 text = "Description",
                 fontSize = 20.sp,
                 color = Color.White,
-                fontFamily = roboto,
+                fontFamily = sans,
                 fontWeight = FontWeight.SemiBold,
             )
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Subscribed",
+                contentDescription = "Close",
                 tint = Color.DarkGray,
                 modifier = Modifier.size(20.dp).noRippleClickable(
                     onClick = {
@@ -96,7 +87,7 @@ fun DescriptionBottomSheetContent(
             text = title ?: "",
             fontSize = 18.sp,
             color = Color.White,
-            fontFamily = roboto,
+            fontFamily = sans,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(top = 18.dp, start = 16.dp, end = 16.dp, bottom = 20.dp)
         )
@@ -117,7 +108,7 @@ fun DescriptionBottomSheetContent(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
-                    fontFamily = roboto
+                    fontFamily = sans
                 )
             }
             Column(
@@ -131,7 +122,7 @@ fun DescriptionBottomSheetContent(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
-                    fontFamily = roboto
+                    fontFamily = sans
                 )
             }
             Column(
@@ -144,14 +135,14 @@ fun DescriptionBottomSheetContent(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    fontFamily = roboto
+                    fontFamily = sans
                 )
                 Text(
                     text = year, color = Color.Gray,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
-                    fontFamily = roboto
+                    fontFamily = sans
                 )
             }
 
@@ -160,7 +151,7 @@ fun DescriptionBottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .background(color = Color(0xff363636), shape = RoundedCornerShape(12.dp)),
+                .background(color = Color(0xff111111), shape = RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.TopStart
         ) {
             Text(
@@ -169,7 +160,7 @@ fun DescriptionBottomSheetContent(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
-                fontFamily = roboto,
+                fontFamily = sans,
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -190,7 +181,7 @@ fun DescriptionBottomSheetContent(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
-                fontFamily = roboto,
+                fontFamily = sans,
             )
             Spacer(modifier = Modifier.weight(1f))
             CustomSubscribeButton(

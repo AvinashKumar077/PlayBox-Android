@@ -47,7 +47,7 @@ fun CustomSubscribeButton(
             .width(width)
             .height(32.dp)
             .clip(RoundedCornerShape(cornerRadius))
-            .background(if (isSubscribed) Color.DarkGray else Color.White)
+            .background(if (isSubscribed) Color(0xff111111)else Color.White)
             .clickable {
                 isSubscribed = !isSubscribed
                 onClickAction?.invoke()

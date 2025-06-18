@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     // Jetpack Compose
-    implementation(libs.ui)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.runtime.v160)
     implementation(libs.androidx.material)

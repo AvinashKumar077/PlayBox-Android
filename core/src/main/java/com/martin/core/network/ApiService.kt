@@ -5,6 +5,7 @@ import com.martin.core.db.auth.LoginResponse
 import com.martin.core.db.ResponseApp
 import com.martin.core.db.auth.SignUpResponse
 import com.martin.core.db.auth.TokenResponse
+import com.martin.core.db.comment.VideoCommentModel
 import com.martin.core.db.home.VideoModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -42,4 +43,7 @@ interface ApiService {
 
     @GET("api/v1/videos/{id}")
     suspend fun getVideoById(@Path("id") id: String): ResponseApp<VideoModel>
+
+    @GET("api/v1/comments/{id}")
+    suspend fun getAllComments(@Path("id") id: String): ResponseApp<List<VideoCommentModel>>
 }

@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-object DateUtils{
+object DateUtils {
     fun getTimeAgo(dateString: String): String {
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         format.timeZone = TimeZone.getTimeZone("UTC")
@@ -25,12 +25,20 @@ object DateUtils{
 
         return when {
             seconds < 60 -> "Just now"
-            minutes < 60 -> "$minutes minute${if (minutes > 1) "s" else ""} ago"
-            hours < 24 -> "$hours hour${if (hours > 1) "s" else ""} ago"
-            days < 7 -> "$days day${if (days > 1) "s" else ""} ago"
+            minutes < 60 -> "$minutes minute${if (minutes != 1L) "s" else ""} ago"
+            hours < 24 -> "$hours hour${if (hours != 1L) "s" else ""} ago"
+            days < 7 -> "$days day${if (days != 1L) "s" else ""} ago"
+            days < 30 -> {
+                val weeks = days / 7
+                "$weeks week${if (weeks != 1L) "s" else ""} ago"
+            }
+            days < 365 -> {
+                val months = days / 30
+                "$months month${if (months != 1L) "s" else ""} ago"
+            }
             else -> {
-                val date = Date(time)
-                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
+                val years = days / 365
+                "$years year${if (years != 1L) "s" else ""} ago"
             }
         }
     }

@@ -3,6 +3,7 @@ package com.martin.features.home.playerscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
@@ -28,7 +31,9 @@ import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -36,29 +41,36 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.martin.core.db.home.VideoModel
 import com.martin.core.helper.DateUtils.getTimeAgo
+import com.martin.core.ui.roboto
+import com.martin.core.ui.sans
 import com.martin.core.utils.extensions.noRippleClickable
+import com.martin.features.home.bottomsheets.CommentBottomSheetContent
 import com.martin.features.home.bottomsheets.DescriptionBottomSheetContent
+import com.martin.features.home.videoutils.BottomSheetType
 import com.martin.features.home.videoutils.CustomSubscribeButton
 import com.martin.features.home.videoutils.OneShotActionChip
 import com.martin.features.home.videoutils.ToggleActionChip
 import com.martin.features.home.videoutils.UserReaction
+import com.martin.features.home.videoutils.VideoCard
 import com.martin.features.home.videoutils.VideoPlayer
+import com.martin.features.navigation.VideoPlayerEntryImpl
 import kotlinx.coroutines.launch
 
 
@@ -67,6 +79,7 @@ import kotlinx.coroutines.launch
 fun VideoPlayerScreen(video: VideoModel) {
     val videoPlayerViewModel: VideoPlayerViewModel = hiltViewModel()
     val videoData by videoPlayerViewModel.video.collectAsStateWithLifecycle()
+    val commentList by videoPlayerViewModel.comments.collectAsStateWithLifecycle()
 
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberStandardBottomSheetState(
@@ -75,22 +88,23 @@ fun VideoPlayerScreen(video: VideoModel) {
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
+    val videos by videoPlayerViewModel.videoList.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         videoPlayerViewModel.getVideoById(video.id.toString())
     }
-    val showSheet by videoPlayerViewModel.showDescriptionBottomSheet.collectAsStateWithLifecycle()
+
+    val currentSheet by videoPlayerViewModel.bottomSheetType.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
-        snapshotFlow { showSheet }
-            .collect { show ->
-                if (show) scaffoldState.bottomSheetState.expand()
+        snapshotFlow { currentSheet }
+            .collect { type ->
+                if (type != BottomSheetType.None) scaffoldState.bottomSheetState.expand()
                 else scaffoldState.bottomSheetState.hide()
             }
     }
+    val reaction by videoPlayerViewModel.reaction.collectAsStateWithLifecycle()
 
-
-
-    var reaction by remember { mutableStateOf(UserReaction.NONE) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -110,30 +124,39 @@ fun VideoPlayerScreen(video: VideoModel) {
             scaffoldState = scaffoldState,
             sheetPeekHeight = 0.dp,
             sheetContent = {
-                videoData?.let {
-                    if (showSheet==true){
-                        DescriptionBottomSheetContent(
-                            likes = it.likeCount,
-                            views = it.views,
-                            createdDateTime = it.createdAt,
-                            description = it.description,
-                            channelName = it.owner?.userName,
-                            avatar = it.owner?.avatar,
-                            title = it.title,
-                            onSubscribeClicked = {
-                                // api call for subscription
-                            },
-                            onDismiss = {
-                                coroutineScope.launch {
-                                    videoPlayerViewModel.showDescriptionBottomSheet.value = false
-                                    scaffoldState.bottomSheetState.hide()
-                                }
-                            },
-                        )
+                when (currentSheet) {
+                    BottomSheetType.Description -> {
+                        videoData?.let {
+                            DescriptionBottomSheetContent(
+                                likes = it.likeCount,
+                                views = it.views,
+                                createdDateTime = it.createdAt,
+                                description = it.description,
+                                channelName = it.owner?.userName,
+                                avatar = it.owner?.avatar,
+                                title = it.title,
+                                onSubscribeClicked = {
+                                    // api call for subscription
+                                },
+                                onDismiss = {
+                                    coroutineScope.launch {
+                                        videoPlayerViewModel.bottomSheetType.value =
+                                            BottomSheetType.None
+                                        scaffoldState.bottomSheetState.hide()
+                                    }
+                                },
+                            )
+
+                        }
                     }
 
+                    BottomSheetType.None -> {
+
+                    }
                 }
+
             },
+            sheetContainerColor = Color(0xff080808),
             containerColor = Color.Black
         ) {
             Column(Modifier.weight(1f)) {
@@ -142,7 +165,8 @@ fun VideoPlayerScreen(video: VideoModel) {
                         .fillMaxWidth()
                         .noRippleClickable(
                             onClick = {
-                                videoPlayerViewModel.showDescriptionBottomSheet.value = true
+                                videoPlayerViewModel.bottomSheetType.value =
+                                    BottomSheetType.Description
                             }
                         ))
                 {
@@ -191,6 +215,7 @@ fun VideoPlayerScreen(video: VideoModel) {
 
                     // Animated Subscribe Button
                     CustomSubscribeButton(
+                        modifier = Modifier.padding(end = 10.dp),
                         onClickAction = {
 
                         }
@@ -210,8 +235,11 @@ fun VideoPlayerScreen(video: VideoModel) {
                         iconFilled = Icons.Filled.ThumbUp,
                         isSelected = reaction == UserReaction.LIKE
                     ) {
-                        reaction =
+                        videoPlayerViewModel.reaction.value =
                             if (reaction == UserReaction.LIKE) UserReaction.NONE else UserReaction.LIKE
+                        coroutineScope.launch {
+                            videoPlayerViewModel.toggleLikeOnVideo()
+                        }
                     }
                     ToggleActionChip(
                         label = "Dislike",
@@ -219,8 +247,11 @@ fun VideoPlayerScreen(video: VideoModel) {
                         iconFilled = Icons.Filled.ThumbDown,
                         isSelected = reaction == UserReaction.DISLIKE
                     ) {
-                        reaction =
+                        videoPlayerViewModel.reaction.value =
                             if (reaction == UserReaction.DISLIKE) UserReaction.NONE else UserReaction.DISLIKE
+                        coroutineScope.launch {
+                            videoPlayerViewModel.toggleLikeOnVideo()
+                        }
                     }
                     OneShotActionChip("Share", Icons.Outlined.Share) {
                         // trigger share sheet
@@ -229,6 +260,38 @@ fun VideoPlayerScreen(video: VideoModel) {
                         // show report confirmation
                     }
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                commentList?.let {
+                    CommentBottomSheetContent(
+                        commentList = commentList ?: emptyList(),
+                        onDismiss = {
+                            coroutineScope.launch {
+                                videoPlayerViewModel.bottomSheetType.value =
+                                    BottomSheetType.None
+                                scaffoldState.bottomSheetState.hide()
+                            }
+                        },
+                        onLikeClicked = {
+                            coroutineScope.launch {
+                                videoPlayerViewModel.toggleLikeOnComment()
+                            }
+                        },
+                        currentUserAvatar = videoData?.owner?.avatar,
+                        onSendClicked = { comment ->
+                            coroutineScope.launch {
+                                videoPlayerViewModel.addNewComment(comment)
+                            }
+                        },
+                        onDislikeClicked = {
+                            coroutineScope.launch {
+                                videoPlayerViewModel.toggleLikeOnComment()
+                            }
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+
             }
         }
     }
