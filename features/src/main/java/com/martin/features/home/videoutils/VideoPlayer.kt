@@ -1,9 +1,6 @@
 package com.martin.features.home.videoutils
 
-
-//noinspection UsingMaterialAndMaterial3Libraries
-//noinspection UsingMaterialAndMaterial3Libraries
-
+import PlaybackSpeedBottomSheet
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.ViewGroup
@@ -17,22 +14,21 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -43,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -52,6 +49,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -94,20 +92,31 @@ fun VideoPlayer(videoUrl: String) {
     var isPlaying by rememberSaveable { mutableStateOf(true) }
     var isBuffering by rememberSaveable { mutableStateOf(true) }
     var isFullscreen by rememberSaveable { mutableStateOf(false) }
-    var showSpeedMenu by rememberSaveable { mutableStateOf(false) }
-
     var showControls by remember { mutableStateOf(true) }
+    var isSettingsOpen by remember { mutableStateOf(false) }
 
     val currentPosition = rememberSaveable { mutableLongStateOf(0L) }
     val totalDuration = rememberSaveable { mutableLongStateOf(1L) }
 
-    LaunchedEffect(showControls) {
-        if (showControls) {
-            delay(2000) // 2 seconds
-            showControls = false
+    val showSettingBottomSheet = rememberSaveable { mutableStateOf(false) }
+    val playbackSpeed = rememberSaveable { mutableFloatStateOf(1.0f) }
+
+    if (showSettingBottomSheet.value) {
+        PlaybackSpeedBottomSheet(
+            currentSpeed = playbackSpeed.floatValue,
+            onSpeedSelected = {
+                playbackSpeed.floatValue = it
+                showSettingBottomSheet.value = false
+            },
+            onDismiss = { showSettingBottomSheet.value = false }
+        )
+    }
+    LaunchedEffect(isBuffering, playbackSpeed.floatValue) {
+        delay(200)
+        if (!isBuffering) {
+            exoPlayer.setPlaybackSpeed(playbackSpeed.floatValue)
         }
     }
-
 
     DisposableEffect(Unit) {
         val listener = object : Player.Listener {
@@ -132,18 +141,18 @@ fun VideoPlayer(videoUrl: String) {
         }
 
         lifecycleOwner.lifecycle.addObserver(observer)
-
         onDispose {
             exoPlayer.removeListener(listener)
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
+    val updateInterval = if (isBuffering) 1000L else 500L
     LaunchedEffect(Unit) {
         while (true) {
             currentPosition.longValue = exoPlayer.currentPosition
             totalDuration.longValue = exoPlayer.duration.takeIf { it > 0 } ?: 1L
-            delay(500)
+            delay(updateInterval)
         }
     }
 
@@ -152,18 +161,23 @@ fun VideoPlayer(videoUrl: String) {
         toggleFullscreen(activity, false)
     }
 
+    val videoModifier = if (isFullscreen) Modifier.fillMaxSize() else {
+        Modifier
+            .windowInsetsPadding(
+                WindowInsets.systemBars
+            )
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f)
+    }
     Box(
-        modifier = Modifier
-            .then(if (isFullscreen) Modifier.fillMaxSize() else Modifier.aspectRatio(16f / 9f))
-
+        modifier = videoModifier
     ) {
         DoubleTapSeekOverlay(
             onSeekForward = { exoPlayer.seekForward() },
             onSeekBackward = { exoPlayer.seekBack() },
-            onTouch = {
-                showControls = !showControls
-            }
+            onTouch = { showControls = !showControls }
         )
+
         AndroidView(
             factory = {
                 PlayerView(it).apply {
@@ -171,89 +185,79 @@ fun VideoPlayer(videoUrl: String) {
                     useController = false
                     layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 }
-            },
-            modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(16f / 9f),
-            update = {
-                it.player = exoPlayer
-            }
-        )
 
+            },
+            modifier = Modifier.fillMaxSize(),
+            update = { it.player = exoPlayer }
+        )
 
         if (isBuffering) {
             CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White
+                modifier = Modifier.align(Alignment.Center), color = Color.White,
             )
         }
+
         AnimatedVisibility(
             visible = showControls,
             enter = fadeIn(animationSpec = tween(200)),
             exit = fadeOut(animationSpec = tween(200))
-        ){
-            Column(modifier = Modifier.fillMaxSize().then(if (showControls) Modifier.background(Color.Black.copy(alpha = 0.3f)) else Modifier.background(Color.Transparent))) {
-                Spacer(modifier = Modifier.weight(1f))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = {
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+            ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    //play pause button :-
+                    PlayPauseButton(isPlaying = isPlaying) {
                         isPlaying = !isPlaying
                         if (isPlaying) exoPlayer.play() else exoPlayer.pause()
-                    }) {
-                        Icon(
-                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = "Play/Pause",
-                            tint = Color.White
-                        )
                     }
 
-                    IconButton(onClick = {
-                        isFullscreen = !isFullscreen
-                        toggleFullscreen(activity, isFullscreen)
-                    }) {
+                    //settings button :-
+                    RotatingSettingsButton(
+                        isRotated = isSettingsOpen,
+                        onClick = {
+                            isSettingsOpen = !isSettingsOpen
+                            showSettingBottomSheet.value=true
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                    )
+
+
+                    //fullscreen toggle button:-
+                    IconButton(
+                        onClick = {
+                            isFullscreen = !isFullscreen
+                            toggleFullscreen(activity, isFullscreen)
+                        },
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .align(Alignment.BottomEnd)
+                    ) {
                         Icon(
                             imageVector = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
                             contentDescription = "Fullscreen",
                             tint = Color.White
                         )
                     }
-
-                    IconButton(onClick = { showSpeedMenu = !showSpeedMenu }) {
-                        Icon(
-                            imageVector = Icons.Default.Speed,
-                            contentDescription = "Speed",
-                            tint = Color.White
-                        )
-                    }
-
-                    if (showSpeedMenu) {
-                        PlaybackSpeedSelector(currentSpeed = exoPlayer.playbackParameters.speed) {
-                            exoPlayer.setPlaybackSpeed(it)
-                            showSpeedMenu = false
-                        }
-                    }
+                    CustomSeekBar(
+                        currentPosition = currentPosition.longValue,
+                        onSeek = { exoPlayer.seekTo(it) },
+                        totalDuration = totalDuration.longValue,
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
                 }
-                CustomSeekBar(
-                    position = currentPosition.longValue,
-                    onSeek = { exoPlayer.seekTo(it.toLong()) },
-                    duration = totalDuration.longValue
-                )
             }
-
         }
-
     }
 }
 
 @Composable
 fun CustomSeekBar(
-    position: Long,
-    duration: Long,
+    currentPosition: Long,
+    totalDuration: Long,
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier,
     trackColor: Color = Color.LightGray,
@@ -263,34 +267,45 @@ fun CustomSeekBar(
 ) {
     val thumbRadiusPx = with(LocalDensity.current) { thumbRadius.toPx() }
     var barWidthPx by remember { mutableFloatStateOf(1f) }
-
     var isDragging by remember { mutableStateOf(false) }
     var dragFraction by remember { mutableFloatStateOf(0f) }
 
-    val progressFraction = if (duration > 0) position.toFloat() / duration else 0f
+    val progressFraction by remember(currentPosition, totalDuration) {
+        derivedStateOf {
+            if (totalDuration > 0) {
+                currentPosition.toFloat() / totalDuration
+            } else 0f
+        }
+    }
+
     val visualFraction = if (isDragging) dragFraction else progressFraction
 
     Column(modifier = modifier) {
         if (showTime) {
             Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("${formatTime((visualFraction * duration).toLong())}/${formatTime(duration)}", style = MaterialTheme.typography.labelSmall, color = Color.White)
+            Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
+                Text(
+                    "${formatTime((visualFraction * totalDuration).toLong())}/${
+                        formatTime(
+                            totalDuration
+                        )
+                    }",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White
+                )
             }
         }
         Box(
             modifier = Modifier
                 .height(2.dp)
                 .fillMaxWidth()
-                .pointerInput(duration) {
-                    detectTapGestures { offset ->
-                        val tappedFraction = (offset.x / barWidthPx).coerceIn(0f, 1f)
-                        onSeek((tappedFraction * duration).toLong())
+                .pointerInput(totalDuration) {
+                    detectTapGestures {
+                        val tappedFraction = (it.x / barWidthPx).coerceIn(0f, 1f)
+                        onSeek((tappedFraction * totalDuration).toLong())
                     }
                 }
-                .pointerInput(duration) {
+                .pointerInput(totalDuration) {
                     detectDragGestures(
                         onDragStart = {
                             isDragging = true
@@ -298,7 +313,7 @@ fun CustomSeekBar(
                         },
                         onDragEnd = {
                             isDragging = false
-                            onSeek((dragFraction * duration).toLong())
+                            onSeek((dragFraction * totalDuration).toLong())
                         },
                         onDragCancel = { isDragging = false },
                         onDrag = { change, _ ->
@@ -307,38 +322,34 @@ fun CustomSeekBar(
                     )
                 }
         ) {
-            Canvas(modifier = Modifier
-                .fillMaxSize()
-                .onGloballyPositioned {
-                    barWidthPx = it.size.width.toFloat()
-                }
-            ) {
-                // Track
-                drawRoundRect(
-                    color = trackColor,
-                    topLeft = Offset(0f, size.height / 2 - 2f),
-                    size = Size(size.width, 4f),
-                    cornerRadius = CornerRadius(2f, 2f)
-                )
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onGloballyPositioned {
+                        barWidthPx = it.size.width.toFloat()
+                    }
+                    .drawBehind {
+                        drawRoundRect(
+                            trackColor,
+                            Offset(0f, size.height / 2 - 2f),
+                            Size(size.width, 4f),
+                            CornerRadius(2f)
+                        )
+                        drawRoundRect(
+                            progressColor,
+                            Offset(0f, size.height / 2 - 2f),
+                            Size(size.width * visualFraction, 4f),
+                            CornerRadius(2f)
+                        )
+                        drawCircle(
+                            progressColor,
+                            thumbRadiusPx,
+                            Offset(size.width * visualFraction, size.height / 2)
+                        )
+                    }
 
-                // Progress
-                drawRoundRect(
-                    color = progressColor,
-                    topLeft = Offset(0f, size.height / 2 - 2f),
-                    size = Size(size.width * visualFraction, 4f),
-                    cornerRadius = CornerRadius(2f, 2f)
-                )
-
-                // Thumb
-                drawCircle(
-                    color = progressColor,
-                    radius = thumbRadiusPx,
-                    center = Offset(size.width * visualFraction, size.height / 2)
-                )
-            }
+            ) {}
         }
-
-
     }
 }
 
@@ -353,7 +364,7 @@ fun formatTime(ms: Long): String {
 fun DoubleTapSeekOverlay(
     onSeekForward: () -> Unit,
     onSeekBackward: () -> Unit,
-    onTouch:()-> Unit,
+    onTouch: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -364,9 +375,7 @@ fun DoubleTapSeekOverlay(
                     onDoubleTap = {
                         if (it.x < size.width / 2) onSeekBackward() else onSeekForward()
                     },
-                    onTap = {
-                        onTouch()
-                    }
+                    onTap = { onTouch() }
                 )
             }
             .zIndex(0f)
@@ -389,13 +398,14 @@ fun PlaybackSpeedSelector(currentSpeed: Float, onSpeedChange: (Float) -> Unit) {
 fun toggleFullscreen(activity: Activity, enable: Boolean) {
     val window = activity.window
     WindowCompat.setDecorFitsSystemWindows(window, !enable)
+
     val controller = WindowInsetsControllerCompat(window, window.decorView)
 
     if (enable) {
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     } else {
         controller.show(WindowInsetsCompat.Type.systemBars())
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -403,6 +413,3 @@ fun toggleFullscreen(activity: Activity, enable: Boolean) {
 }
 
 
-fun ExoPlayer.setPlaybackSpeed(speed: Float) {
-    this.playbackParameters = this.playbackParameters.withSpeed(speed)
-}
