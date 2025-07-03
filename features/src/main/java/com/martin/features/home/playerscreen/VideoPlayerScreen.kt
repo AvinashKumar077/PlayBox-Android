@@ -3,24 +3,24 @@ package com.martin.features.home.playerscreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
@@ -31,9 +31,7 @@ import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -48,18 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.martin.core.db.home.VideoModel
 import com.martin.core.helper.DateUtils.getTimeAgo
-import com.martin.core.ui.roboto
-import com.martin.core.ui.sans
 import com.martin.core.utils.extensions.noRippleClickable
 import com.martin.features.home.bottomsheets.CommentBottomSheetContent
 import com.martin.features.home.bottomsheets.DescriptionBottomSheetContent
@@ -68,9 +60,7 @@ import com.martin.features.home.videoutils.CustomSubscribeButton
 import com.martin.features.home.videoutils.OneShotActionChip
 import com.martin.features.home.videoutils.ToggleActionChip
 import com.martin.features.home.videoutils.UserReaction
-import com.martin.features.home.videoutils.VideoCard
 import com.martin.features.home.videoutils.VideoPlayer
-import com.martin.features.navigation.VideoPlayerEntryImpl
 import kotlinx.coroutines.launch
 
 
@@ -88,8 +78,6 @@ fun VideoPlayerScreen(video: VideoModel) {
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
-    val videos by videoPlayerViewModel.videoList.collectAsStateWithLifecycle()
-
     LaunchedEffect(Unit) {
         videoPlayerViewModel.getVideoById(video.id.toString())
     }
@@ -103,7 +91,7 @@ fun VideoPlayerScreen(video: VideoModel) {
                 else scaffoldState.bottomSheetState.hide()
             }
     }
-    val reaction by videoPlayerViewModel.reaction.collectAsStateWithLifecycle()
+    val videoReaction by videoPlayerViewModel.videoReaction.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -177,7 +165,7 @@ fun VideoPlayerScreen(video: VideoModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp)
-                            .padding(top = 12.dp, bottom = 6.dp)
+                            .padding(bottom = 6.dp)
                     )
                     Text(
                         text = "${video.views} views • ${getTimeAgo(video.createdAt.toString())} • ...more",
@@ -233,10 +221,10 @@ fun VideoPlayerScreen(video: VideoModel) {
                         label = "Like",
                         iconOutlined = Icons.Outlined.ThumbUp,
                         iconFilled = Icons.Filled.ThumbUp,
-                        isSelected = reaction == UserReaction.LIKE
+                        isSelected = videoReaction == UserReaction.LIKE
                     ) {
-                        videoPlayerViewModel.reaction.value =
-                            if (reaction == UserReaction.LIKE) UserReaction.NONE else UserReaction.LIKE
+                        videoPlayerViewModel.videoReaction.value =
+                            if (videoReaction == UserReaction.LIKE) UserReaction.NONE else UserReaction.LIKE
                         coroutineScope.launch {
                             videoPlayerViewModel.toggleLikeOnVideo()
                         }
@@ -245,12 +233,15 @@ fun VideoPlayerScreen(video: VideoModel) {
                         label = "Dislike",
                         iconOutlined = Icons.Outlined.ThumbDown,
                         iconFilled = Icons.Filled.ThumbDown,
-                        isSelected = reaction == UserReaction.DISLIKE
+                        isSelected = videoReaction == UserReaction.DISLIKE
                     ) {
-                        videoPlayerViewModel.reaction.value =
-                            if (reaction == UserReaction.DISLIKE) UserReaction.NONE else UserReaction.DISLIKE
+                        videoPlayerViewModel.videoReaction.value =
+                            if (videoReaction == UserReaction.DISLIKE) UserReaction.NONE else UserReaction.DISLIKE
+
                         coroutineScope.launch {
-                            videoPlayerViewModel.toggleLikeOnVideo()
+                            if (videoData?.liked == true) {
+                                videoPlayerViewModel.toggleLikeOnVideo()
+                            }
                         }
                     }
                     OneShotActionChip("Share", Icons.Outlined.Share) {
@@ -262,6 +253,9 @@ fun VideoPlayerScreen(video: VideoModel) {
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
+
+                //comment section
+                
                 commentList?.let {
                     CommentBottomSheetContent(
                         commentList = commentList ?: emptyList(),

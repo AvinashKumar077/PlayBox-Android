@@ -1,5 +1,7 @@
 package com.martin.playbox
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +17,7 @@ import com.martin.core.helper.getSlideFadeTransition
 import com.martin.core.navigation.Graph
 import com.martin.features.navigation.homeNavGraph
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun PlayBoxApp() {
     val navController = rememberNavController()

@@ -11,11 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ThumbDown
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.martin.core.helper.DateUtils.getTimeAgo
 import com.martin.core.ui.sans
+import com.martin.features.home.videoutils.UserReaction
 
 @Composable
 fun CommentItem(
@@ -38,6 +45,7 @@ fun CommentItem(
     onLikeClicked:()->Unit,
     onDislikeClicked:()->Unit
 ) {
+    var commentReaction by remember { mutableStateOf(UserReaction.NONE) }
     Row(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
         Image(
             painter = rememberAsyncImagePainter(avatar),
@@ -65,22 +73,32 @@ fun CommentItem(
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Outlined.ThumbUp,
+                    imageVector = if(commentReaction == UserReaction.LIKE)Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                     contentDescription = "like",
                     tint = Color.White,
                     modifier = Modifier.padding(end = 20.dp).size(16.dp).clickable(
                         onClick = {
-                            onLikeClicked()
+                            commentReaction = if (commentReaction == UserReaction.LIKE) {
+                                UserReaction.NONE
+                            } else {
+                                onLikeClicked()
+                                UserReaction.LIKE
+                            }
                         }
                     )
                 )
                 Icon(
-                    imageVector = Icons.Outlined.ThumbDown,
+                    imageVector = if(commentReaction == UserReaction.DISLIKE)Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown,
                     contentDescription = "dislike",
                     tint = Color.White,
                     modifier = Modifier.size(16.dp).clickable(
                         onClick = {
-                            onDislikeClicked()
+                            commentReaction = if (commentReaction == UserReaction.DISLIKE) {
+                                UserReaction.NONE
+                            } else {
+                                onDislikeClicked()
+                                UserReaction.DISLIKE
+                            }
                         }
                     )
                 )

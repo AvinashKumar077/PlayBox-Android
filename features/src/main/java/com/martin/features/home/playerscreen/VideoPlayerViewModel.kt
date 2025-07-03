@@ -1,6 +1,5 @@
 package com.martin.features.home.playerscreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.martin.core.db.comment.VideoCommentModel
@@ -28,7 +27,8 @@ class VideoPlayerViewModel @Inject constructor(
     val video = MutableStateFlow<VideoModel?>(null)
     val comments = MutableStateFlow<List<VideoCommentModel>?>(null)
     val bottomSheetType = MutableStateFlow<BottomSheetType>(BottomSheetType.None)
-    val reaction = MutableStateFlow(UserReaction.NONE)
+    val videoReaction = MutableStateFlow(UserReaction.NONE)
+    val commentReaction = MutableStateFlow(UserReaction.NONE)
     val currentUser = prefUtils.getUserDetails()
     val videoList = MutableStateFlow<List<VideoModel>?>(null)
 
