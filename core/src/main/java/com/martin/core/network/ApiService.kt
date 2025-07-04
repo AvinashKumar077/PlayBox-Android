@@ -5,6 +5,7 @@ import com.martin.core.db.auth.LoginResponse
 import com.martin.core.db.ResponseApp
 import com.martin.core.db.auth.SignUpResponse
 import com.martin.core.db.auth.TokenResponse
+import com.martin.core.db.comment.CommentRequestModel
 import com.martin.core.db.comment.LikeModel
 import com.martin.core.db.comment.VideoCommentModel
 import com.martin.core.db.home.VideoModel
@@ -53,4 +54,13 @@ interface ApiService {
 
     @POST("/api/v1/subscriptions/c/{id}")
     suspend fun toggleSubscription(@Path("id") id: String)
+
+    @POST("/api/v1/likes/toggle/c/{id}")
+    suspend fun toggleLikeOnComment(@Path("id") id: String)
+    @POST("api/v1/comments/{id}")
+    suspend fun addNewComment(
+        @Path("id") id: String,
+        @Body commentRequestModel: CommentRequestModel
+    )
+
 }

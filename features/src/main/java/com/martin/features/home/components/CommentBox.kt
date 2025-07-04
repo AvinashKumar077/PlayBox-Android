@@ -1,4 +1,4 @@
-package com.martin.features.home.bottomsheets
+package com.martin.features.home.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,7 +24,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -56,6 +54,7 @@ fun CommentInputBottomSheet(
         sheetState = sheetState,
         shape = RectangleShape,
         dragHandle = {},
+        containerColor = Color(0xff080808),
     ) {
         Surface(
             modifier = Modifier
@@ -84,6 +83,7 @@ fun CommentInputBottomSheet(
                     modifier = Modifier.padding(end = 10.dp)
                         .size(25.dp)
                         .clip(CircleShape)
+                        .background(color = Color.White)
                 )
                 OutlinedTextField(
                     state = textFieldState,

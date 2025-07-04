@@ -1,8 +1,11 @@
 package com.martin.features.home.playerscreen
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.martin.core.db.comment.CommentRequestModel
 import com.martin.core.db.comment.VideoCommentModel
 import com.martin.core.db.home.VideoModel
 import com.martin.core.pref.PrefUtils
@@ -16,6 +19,7 @@ import com.martin.features.home.videoutils.BottomSheetType
 import com.martin.features.home.videoutils.UserReaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
@@ -39,6 +43,7 @@ class VideoPlayerViewModel @Inject constructor(
     val isLiking = MutableStateFlow(false)
     val isDisliking = MutableStateFlow(false)
     val isSubscribing = MutableStateFlow(false)
+    val commentLoading = MutableStateFlow(false)
 
 
 
@@ -61,25 +66,59 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     fun getAllVideoComments(id: String) {
+        commentLoading.value = true
         viewModelScope.launchSafeWithErrorHandling(
             block = {
-                val response = commentsRepository.getAllComments(id)
-                response.second?.let {
-                    comments.value = it
+                try {
+                    val response = commentsRepository.getAllComments(id)
+                    response.second?.let {
+                        comments.value = it
+                    }
+                }finally {
+                    commentLoading.value = false
                 }
+            },
+            onError = {
+                toastMessage.trySend("Something went wrong")
+                commentLoading.value = false
+            }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun addNewComment(videoId: String, commentRequestModel: CommentRequestModel) {
+        val tempComment = VideoCommentModel(
+            id = System.currentTimeMillis().toString(), // Temporary ID
+            content = commentRequestModel.content,
+            createdAt = java.time.Instant.now().toString(),
+            user = currentUser,
+            likeCount = 0,
+            isLiked = false
+        )
+        val currentList = comments.value?.toMutableList() ?: mutableListOf()
+        currentList.add(0, tempComment) // Add at top
+        comments.value = currentList
+
+
+        viewModelScope.launchSafeWithErrorHandling(
+            block = {
+                commentsRepository.addNewComment(videoId,commentRequestModel)
+            },
+            onError = {
+                toastMessage.trySend("Failed to send comment")
+            }
+        )
+    }
+
+    fun toggleLikeOnComment(commentId: String) {
+        viewModelScope.launchSafeWithErrorHandling(
+            block = {
+                commentsRepository.toggleLikeOnComment(commentId)
             },
             onError = {
                 toastMessage.trySend("Something went wrong")
             }
         )
-    }
-
-    fun addNewComment(comment: String) {
-
-    }
-
-    fun toggleLikeOnComment() {
-
     }
 
     fun toggleLikeOnVideo(videoId: String) {

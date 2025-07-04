@@ -1,4 +1,4 @@
-package com.martin.features.home.bottomsheets
+package com.martin.features.home.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,19 +46,19 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommentBottomSheetContent(
+fun CommentSectionContent(
     commentList: List<VideoCommentModel>,
     currentUserAvatar: String?,
-    onSendClicked : (String)-> Unit,
-    onDislikeClicked: () -> Unit,
-    onLikeClicked: () -> Unit,
+    onSendClicked: (String) -> Unit,
+    onLikeClicked: (String) -> Unit,
 ) {
     var showCommentInput by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xff080808))) {
-
-
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xff080808)))
+    {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -93,9 +93,15 @@ fun CommentBottomSheetContent(
                         userName = commentList[it].user?.userName,
                         content = commentList[it].content,
                         createdAt = commentList[it].createdAt,
-                        onLikeClicked = {onLikeClicked()},
-                        onDislikeClicked = {onDislikeClicked()}
+                        onLikeClicked = {
+                            onLikeClicked(commentList[it].id.toString())
+                        },
+                        isCommentLiked = commentList[it].isLiked == true,
+                        likeCount = commentList[it].likeCount,
                     )
+                }
+                item{
+                    Spacer(modifier = Modifier.height(70.dp))
                 }
             }
 
@@ -132,13 +138,27 @@ fun CommentBottomSheetContent(
                     painter = rememberAsyncImagePainter(currentUserAvatar),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.padding(start = 10.dp)
+                    modifier = Modifier
+                        .padding(start = 10.dp)
                         .size(25.dp)
                         .clip(CircleShape)
+                        .background(color = Color.White)
                 )
-                Box(modifier = Modifier.padding(12.dp).weight(1f).background(color = Color(0xff111111), shape = RoundedCornerShape(2.dp)).height(32.dp),
-                    contentAlignment = Alignment.CenterStart){
-                    Text("Add a comment...", color = Color.Gray, modifier = Modifier.padding(start = 8.dp),fontFamily = sans, fontWeight = FontWeight.Normal)
+                Box(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .weight(1f)
+                        .background(color = Color(0xff111111), shape = RoundedCornerShape(2.dp))
+                        .height(32.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        "Add a comment...",
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 8.dp),
+                        fontFamily = sans,
+                        fontWeight = FontWeight.Normal
+                    )
                 }
 
             }
@@ -153,6 +173,7 @@ fun CommentBottomSheetContent(
                     coroutineScope.launch {
                         sheetState.hide()
                         showCommentInput = false
+                        onSendClicked(commentText)
                     }
                 },
                 onDismiss = {
@@ -169,11 +190,10 @@ fun CommentBottomSheetContent(
 }
 
 
-
 @Preview
 @Composable
 fun PreviewCommentBottomSheet() {
-    CommentBottomSheetContent(
+    CommentSectionContent(
         commentList = listOf(
             VideoCommentModel(
                 id = "1",
@@ -234,6 +254,5 @@ fun PreviewCommentBottomSheet() {
         onLikeClicked = {},
         currentUserAvatar = "",
         onSendClicked = {},
-        onDislikeClicked = {}
     )
 }

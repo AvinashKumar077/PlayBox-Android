@@ -6,19 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ThumbDown
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.outlined.ThumbDown
-import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,16 +40,21 @@ fun CommentItem(
     userName: String?,
     content: String?,
     createdAt: String?,
-    onLikeClicked:()->Unit,
-    onDislikeClicked:()->Unit
+    onLikeClicked: () -> Unit,
+    isCommentLiked: Boolean,
+    likeCount: Int?,
 ) {
-    var commentReaction by remember { mutableStateOf(UserReaction.NONE) }
-    Row(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+    val (commentReaction, setCommentReaction) = remember(isCommentLiked) {
+        mutableStateOf(if (isCommentLiked) UserReaction.LIKE else UserReaction.NONE)
+    }
+    var localLikeCount by remember { mutableIntStateOf(likeCount ?: 0) }
+
+    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = rememberAsyncImagePainter(avatar),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier
                 .size(25.dp)
                 .clip(CircleShape)
         )
@@ -70,40 +73,34 @@ fun CommentItem(
                 fontFamily = sans,
                 fontWeight = FontWeight.Normal
             )
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = if(commentReaction == UserReaction.LIKE)Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                    contentDescription = "like",
-                    tint = Color.White,
-                    modifier = Modifier.padding(end = 20.dp).size(16.dp).clickable(
-                        onClick = {
-                            commentReaction = if (commentReaction == UserReaction.LIKE) {
-                                UserReaction.NONE
-                            } else {
-                                onLikeClicked()
-                                UserReaction.LIKE
-                            }
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                imageVector = if(commentReaction == UserReaction.LIKE) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = "like",
+                tint = if(commentReaction == UserReaction.LIKE) Color.Red else Color.White,
+                modifier = Modifier.padding(end = 10.dp).size(16.dp).clickable(
+                    onClick = {
+                        if (commentReaction == UserReaction.LIKE) {
+                            setCommentReaction(UserReaction.NONE)
+                            localLikeCount = (localLikeCount - 1).coerceAtLeast(0)
+                        } else {
+                            setCommentReaction(UserReaction.LIKE)
+                            localLikeCount += 1
+                            onLikeClicked()
                         }
-                    )
+                    }
                 )
-                Icon(
-                    imageVector = if(commentReaction == UserReaction.DISLIKE)Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown,
-                    contentDescription = "dislike",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp).clickable(
-                        onClick = {
-                            commentReaction = if (commentReaction == UserReaction.DISLIKE) {
-                                UserReaction.NONE
-                            } else {
-                                onDislikeClicked()
-                                UserReaction.DISLIKE
-                            }
-                        }
-                    )
-                )
-
-            }
+            )
+            Text(
+                text = localLikeCount.toString(),
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(end = 10.dp),
+                fontFamily = sans,
+                fontWeight = FontWeight.Normal
+            )
         }
     }
 }
@@ -117,6 +114,7 @@ fun CommentItemPreview(){
         content = "this is the content of the comment",
         createdAt = "2025-02-28T10:00:00.000Z",
         onLikeClicked = {},
-        onDislikeClicked = {}
+        isCommentLiked = true,
+        likeCount = 34,
     )
 }

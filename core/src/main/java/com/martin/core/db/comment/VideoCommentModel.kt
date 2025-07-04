@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class VideoCommentModel(
-    @Json(name = "id")
+    @Json(name = "_id")
     val id: String?=null,
     @Json(name = "content")
     val content: String?=null,
