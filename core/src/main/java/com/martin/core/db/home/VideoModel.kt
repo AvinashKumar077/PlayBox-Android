@@ -29,5 +29,9 @@ data class VideoModel(
     @Json(name = "createdAt")
     val createdAt: String?=null,
     @Json(name = "updatedAt")
-    val updatedAt: String?=null
+    val updatedAt: String?=null,
+    @Json(name ="isSubscribed")
+    val isSubscribed: Boolean?=null,
+    @Json(name = "subscriberCount")
+    val subscriberCount: Int?=null
 )

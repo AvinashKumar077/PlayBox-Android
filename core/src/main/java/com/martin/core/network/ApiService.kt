@@ -5,6 +5,7 @@ import com.martin.core.db.auth.LoginResponse
 import com.martin.core.db.ResponseApp
 import com.martin.core.db.auth.SignUpResponse
 import com.martin.core.db.auth.TokenResponse
+import com.martin.core.db.comment.LikeModel
 import com.martin.core.db.comment.VideoCommentModel
 import com.martin.core.db.home.VideoModel
 import okhttp3.MultipartBody
@@ -46,4 +47,10 @@ interface ApiService {
 
     @GET("api/v1/comments/{id}")
     suspend fun getAllComments(@Path("id") id: String): ResponseApp<List<VideoCommentModel>>
+
+    @POST("/api/v1/likes/toggle/v/{id}")
+    suspend fun toggleVideoLike(@Path("id") id: String): ResponseApp<LikeModel>
+
+    @POST("/api/v1/subscriptions/c/{id}")
+    suspend fun toggleSubscription(@Path("id") id: String)
 }

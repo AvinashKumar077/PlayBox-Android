@@ -261,7 +261,7 @@ fun CustomSeekBar(
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier,
     trackColor: Color = Color.LightGray,
-    progressColor: Color = Color.Red,
+    progressColor: Color = Color(0xff43b0f1),
     thumbRadius: Dp = 6.dp,
     showTime: Boolean = true
 ) {

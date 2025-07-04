@@ -1,5 +1,6 @@
 package com.martin.features.home.videoutils
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
@@ -21,19 +22,22 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -51,6 +55,7 @@ fun BaseActionChip(
     icon: ImageVector,
     isSelected: Boolean = false,
     toggleable: Boolean = false,
+    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
     val backgroundColor by animateColorAsState(
@@ -68,12 +73,14 @@ fun BaseActionChip(
         if (isSelected && toggleable) 1.05f else 1f,
         animationSpec = tween(150)
     )
+    val alpha = if (isLoading) 0.6f else 1f
 
     Surface(
         modifier = Modifier
             .scale(scale)
             .padding(vertical = 4.dp)
-            .clickable { onClick() },
+            .alpha(alpha)
+            .clickable(enabled = !isLoading) { onClick() },
         shape = RoundedCornerShape(50),
         color = backgroundColor,
         tonalElevation = elevation
@@ -82,11 +89,21 @@ fun BaseActionChip(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = if (isSelected && toggleable) Color.White else Color.White
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(end = 2.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = if (isSelected && toggleable) Color.White else Color.White
+                )
+            }
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = label,
@@ -98,12 +115,14 @@ fun BaseActionChip(
 }
 
 
+
 @Composable
 fun ToggleActionChip(
     label: String,
     iconOutlined: ImageVector,
     iconFilled: ImageVector,
     isSelected: Boolean,
+    isLiking: Boolean = false,
     onToggle: () -> Unit
 ) {
     BaseActionChip(
@@ -111,10 +130,28 @@ fun ToggleActionChip(
         icon = if (isSelected) iconFilled else iconOutlined,
         isSelected = isSelected,
         toggleable = true,
+        isLoading = isLiking,
         onClick = onToggle
     )
 }
-
+@Composable
+fun ToggleActionDislikeChip(
+    label: String,
+    iconOutlined: ImageVector,
+    iconFilled: ImageVector,
+    isSelected: Boolean,
+    isDisliking: Boolean = false,
+    onToggle: () -> Unit
+) {
+    BaseActionChip(
+        label = label,
+        icon = if (isSelected) iconFilled else iconOutlined,
+        isSelected = isSelected,
+        toggleable = true,
+        isLoading = isDisliking,
+        onClick = onToggle
+    )
+}
 
 @Composable
 fun OneShotActionChip(
@@ -135,45 +172,71 @@ fun OneShotActionChip(
 fun CustomSubscribeButton(
     modifier: Modifier = Modifier,
     initialText: String = "Subscribe",
+    isSubscribed: Boolean,
+    isLoadings: Boolean = false,
     icon: ImageVector = Icons.Default.NotificationsActive,
-    onClickAction: (() -> Unit)? = null
+    onClickAction: ((Boolean) -> Unit)? = null
 ) {
-    var isSubscribed by remember { mutableStateOf(false) }
 
-    val width by animateDpAsState(targetValue = if (isSubscribed) 32.dp else 100.dp, label = "width")
-    val cornerRadius by animateDpAsState(targetValue = if (isSubscribed) 16.dp else 12.dp, label = "corner")
+    val subscribedState = rememberUpdatedState(newValue = isSubscribed)
+    var localSubscribed by remember { mutableStateOf(isSubscribed) }
+
+    LaunchedEffect(subscribedState.value) {
+        localSubscribed = subscribedState.value
+    }
+
+    val width by animateDpAsState(targetValue = if (localSubscribed) 32.dp else 100.dp, label = "width")
+    val cornerRadius by animateDpAsState(targetValue = if (localSubscribed) 16.dp else 12.dp, label = "corner")
 
     Box(
         modifier = modifier
             .width(width)
             .height(32.dp)
             .clip(RoundedCornerShape(cornerRadius))
-            .background(if (isSubscribed) Color(0xff111111)else Color.White)
-            .clickable {
-                isSubscribed = !isSubscribed
-                onClickAction?.invoke()
+            .background(if (localSubscribed) Color(0xff43b0f1) else Color.White)
+            .clickable(enabled = !isLoadings) { // disable while loading
+                localSubscribed = !localSubscribed
+                onClickAction?.invoke(localSubscribed)
             }
             .animateContentSize(),
         contentAlignment = Alignment.Center
     ) {
-        if (isSubscribed) {
-            Icon(
-                imageVector = icon,
-                contentDescription = "Subscribed",
-                tint = Color.White,
-                modifier = Modifier.size(16.dp)
-            )
+        if (localSubscribed) {
+            if (isLoadings) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "Subscribed",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         } else {
-            Text(
-                text = initialText,
-                color = Color.Black,
-                fontSize = 12.sp,
-                fontFamily = roboto,
-                fontWeight = FontWeight.SemiBold
-            )
+            if(isLoadings){
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = Color.Black,
+                    strokeWidth = 2.dp
+                )
+            }else {
+                Text(
+                    text = initialText,
+                    color = Color.Black,
+                    fontSize = 12.sp,
+                    fontFamily = roboto,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
+
+
 
 
 @Composable
@@ -224,5 +287,7 @@ fun PlayPauseButton(
 @Preview(showBackground = true)
 @Composable
 fun PreviewSubscribeButton() {
-    CustomSubscribeButton()
+    CustomSubscribeButton(
+        isSubscribed = false,
+    )
 }

@@ -49,6 +49,9 @@ fun DescriptionBottomSheetContent(
     channelName: String?,
     avatar: String?,
     title: String?,
+    isSubscribed: Boolean,
+    subscriberCount:Int,
+    isLoadings: Boolean = false,
     onSubscribeClicked: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -183,9 +186,20 @@ fun DescriptionBottomSheetContent(
                 textAlign = TextAlign.Center,
                 fontFamily = sans,
             )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "$subscriberCount Subscriber",
+                color = Color.Gray,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                fontFamily = sans,
+            )
             Spacer(modifier = Modifier.weight(1f))
             CustomSubscribeButton(
-                onClickAction = onSubscribeClicked
+                onClickAction = {onSubscribeClicked()},
+                isSubscribed = isSubscribed,
+                isLoadings = isLoadings
             )
         }
 
@@ -205,6 +219,8 @@ fun PreviewDescriptionBottomSheet() {
         description = "this is the description of the video",
         channelName = "Martin",
         avatar = "https://th.bing.com/th/id/OIP.eTUT6_ZG9aGQ8cACsc7nLQHaFj?w=260&h=195&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-        title = "this is the title of the video"
+        title = "this is the title of the video",
+        isSubscribed = true,
+        subscriberCount = 12
     )
 }
