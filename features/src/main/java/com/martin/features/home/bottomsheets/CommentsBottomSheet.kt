@@ -51,7 +51,6 @@ fun CommentBottomSheetContent(
     currentUserAvatar: String?,
     onSendClicked : (String)-> Unit,
     onDislikeClicked: () -> Unit,
-    onDismiss: () -> Unit,
     onLikeClicked: () -> Unit,
 ) {
     var showCommentInput by remember { mutableStateOf(false) }
@@ -232,7 +231,6 @@ fun PreviewCommentBottomSheet() {
                 createdAt = "2025-03-28T10:00:00.000Z",
             )
         ),
-        onDismiss = {},
         onLikeClicked = {},
         currentUserAvatar = "",
         onSendClicked = {},

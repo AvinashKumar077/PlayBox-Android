@@ -178,23 +178,24 @@ fun DescriptionBottomSheetContent(
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = channelName.toString(),
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                fontFamily = sans,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "$subscriberCount Subscriber",
-                color = Color.Gray,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                fontFamily = sans,
-            )
+            Column(horizontalAlignment = Alignment.Start) {
+                Text(
+                    text = channelName.toString(),
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    fontFamily = sans,
+                )
+                Text(
+                    text = "$subscriberCount subscribers",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    fontFamily = sans,
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
             CustomSubscribeButton(
                 onClickAction = {onSubscribeClicked()},
